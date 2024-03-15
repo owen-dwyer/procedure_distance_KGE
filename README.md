@@ -1,5 +1,7 @@
-# Defining the distance between diseases using SNOMED CT embeddings
-### Mingzhou Fu, Yu Yan, Loes M Olde Loohuis, and Timothy S Chang
+# Defining the distance between procedures using SNOMED CT embeddings
+
+A modification of https://github.com/TSChang-Lab/disease_distance_KGE. Can we reproduce this work for OPCS codes?
+
 
 ## Data description
 ### Disease distance files
