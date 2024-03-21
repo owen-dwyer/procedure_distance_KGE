@@ -25,12 +25,14 @@ load(file = paste0(raw_data_path, "dist_final_nodup.rda"))
 # Figure 2. Density plots for four distance metrics
 ```{r}
 dist_short_long = dist_final_nodup %>% 
-  select(-c(ICD1, ICD2, Study_type)) %>% 
+  select(-c(OPCS1, OPCS2)) %>% 
   gather(key = "Metrics", value = "Value", na.rm = T)
 # Get mean values for each metric
 mu = ddply(dist_short_long, "Metrics", summarise, grp.mean = mean(Value))
 # Plot each
 dist_embed = dist_short_long %>% filter(Metrics == "embed_dist")
+dist_embed$Value <- as.numeric(dist_embed$Value)
+
 plot_embed = ggplot(dist_embed, aes(x = Value)) + 
   geom_histogram(bins = 50, fill = "#f28482") +
   geom_vline(xintercept = mu$grp.mean[1], linetype = "dashed") + 
@@ -44,17 +46,21 @@ plot_gene = ggplot(dist_gene, aes(x = Value)) +
   ggtitle("Genetic Distance") + 
   labs(y = "Count", x = "Value")
 
-dist_jaccard = dist_short_long %>% filter(Metrics == "jaccard_dist")
-options( scipen = 999 )
-plot_jaccard = ggplot(dist_jaccard, aes(x = Value)) + 
-  geom_histogram(bins = 50, fill = "#a3c4f3") +
-  geom_vline(xintercept = mu$grp.mean[3], linetype = "dashed") + xlim(0, 1) + 
-  scale_y_break(c(30000, 90000), scales = 0.5, ticklabels = c(90000, 95000, 100000)) + 
-  scale_y_break(c(100000, 110000), scales = 0.5, ticklabels = c(200000, 600000, 1000000)) +
-  ggtitle("Comorbidity Distance") + 
-  labs(y = "Count", x = "Value")
+#dist_jaccard = dist_short_long %>% filter(Metrics == "jaccard_dist")
+#options( scipen = 999 )
+#plot_jaccard = ggplot(dist_jaccard, aes(x = Value)) + 
+#  geom_histogram(bins = 50, fill = "#a3c4f3") +
+#  geom_vline(xintercept = mu$grp.mean[3], linetype = "dashed") + xlim(0, 1) + 
+#  scale_y_break(c(30000, 90000), scales = 0.5, ticklabels = c(90000, 95000, 100000)) + 
+#  scale_y_break(c(100000, 110000), scales = 0.5, ticklabels = c(200000, 600000, 1000000)) +
+#  ggtitle("Comorbidity Distance") + 
+#  labs(y = "Count", x = "Value")
+
+
 
 dist_naive = dist_short_long %>% filter(Metrics == "naive_dist")
+dist_naive$Value <- as.numeric(dist_naive$Value)
+
 plot_naive = ggplot(dist_naive, aes(x = Value)) + 
   geom_histogram(bins = 50, fill = "#f6bd60") +
   geom_vline(xintercept = mu$grp.mean[4], linetype = "dashed") +
@@ -65,25 +71,23 @@ plot_naive = ggplot(dist_naive, aes(x = Value)) +
 # Output to pdf
 g1 = ggplotGrob(print(plot_naive))
 g2 = ggplotGrob(plot_embed)
-g3 = ggplotGrob(print(plot_jaccard))
-g4 = ggplotGrob(plot_gene)
-g_set1 = rbind(g1, g3, size = "first")
-g_set1$widths = unit.pmax(g1$widths, g3$widths)
-g_set2 = rbind(g2, g4, size = "first")
-g_set2$widths = unit.pmax(g2$widths, g4$widths)
+#g3 = ggplotGrob(print(plot_jaccard))
+g_set1 = rbind(g1, g2, size = "first")
+g_set1$widths = unit.pmax(g1$widths, g2$widths)
 
-pdf(file = paste0(output_path, "Dist.Eval/Density_naive_jaccard.pdf"), wi = 4, he = 8);
-grid.draw(g_set1)
-dev.off()
 
-pdf(file = paste0(output_path, "Dist.Eval/Density_embed_gene.pdf"), wi = 4, he = 8);
-grid.draw(g_set2)
-dev.off()
+#pdf(file = paste0(output_path, "Dist.Eval/Density_naive_jaccard.pdf"), wi = 4, he = 8);
+#grid.draw(g_set1)
+#dev.off()
+
+#pdf(file = paste0(output_path, "Dist.Eval/Density_embed_gene.pdf"), wi = 4, he = 8);
+#grid.draw(g_set2)
+#dev.off()
 ```
 
 ## Add: genetic by study type
 ```{r}
-dist_gene_short = dist_final_nodup %>% select(ICD1, ICD2, gen_dist, Study_type) %>% drop_na()
+dist_gene_short = dist_final_nodup %>% select(OPCS1, OPCS2, gen_dist, Study_type) %>% drop_na()
 mu_gene = dist_gene_short %>% group_by(Study_type) %>% 
   dplyr::summarise(mean_cor = mean(gen_dist, na.rm = T)) %>% pull(mean_cor)
 plot_gene_study = ggplot(dist_gene_short, aes(x = gen_dist, fill = Study_type)) + 
@@ -106,12 +110,12 @@ load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_long_df_addChap.rda
 ```{r Within group check}
 # Here we take F3 as an example
 group_icd = grep("F3+", colnames(embed_sim_cal), value = TRUE)
-group_F3_embed = embed_long_df %>% filter(ICD1 %in% group_icd & ICD2 %in% group_icd)
+group_F3_embed = embed_long_df %>% filter(OPCS1 %in% group_icd & OPCS2 %in% group_icd)
 # Distribution
 summary(group_F3_embed$embed_dist)
 sd(group_F3_embed$embed_dist)
-to_plot_mean = group_F3_embed %>% select(ICD1, ICD2, embed_dist) %>% 
-  spread(ICD2, value = embed_dist) %>% column_to_rownames("ICD1") %>% as.matrix()
+to_plot_mean = group_F3_embed %>% select(OPCS1, OPCS2, embed_dist) %>% 
+  spread(OPCS2, value = embed_dist) %>% column_to_rownames("OPCS1") %>% as.matrix()
 to_plot_mean[1,1] = NA
 to_plot_mean[2,2] = NA
 to_plot_mean[3,3] = NA
@@ -136,14 +140,14 @@ dev.off()
 ```{r Within sub-chapter check}
 # F chapter as an example
 group_icd = grep("F+", colnames(embed_sim_cal), value = TRUE)
-group_F_embed = embed_long_df %>% filter(ICD1 %in% group_icd & ICD2 %in% group_icd)
+group_F_embed = embed_long_df %>% filter(OPCS1 %in% group_icd & OPCS2 %in% group_icd)
 # Distribution
 summary(group_F_embed$embed_dist)
 sd(group_F_embed$embed_dist)
 # Make heatmap
 group_F_summary = group_F_embed %>% 
-  mutate(two_digit_1 = substr(ICD1, 1, 2),
-         two_digit_2 = substr(ICD2, 1, 2)) %>% 
+  mutate(two_digit_1 = substr(OPCS1, 1, 2),
+         two_digit_2 = substr(OPCS2, 1, 2)) %>% 
   group_by(two_digit_1, two_digit_2) %>% 
   dplyr::summarize(mean_dist = mean(embed_dist, na.rm = T)) 
 to_plot_mean = group_F_summary %>% select(two_digit_1, two_digit_2, mean_dist) %>% 
@@ -211,12 +215,12 @@ dev.off()
 # Embedding
 group_icd = grep("C[67][0-9]+", colnames(embed_sim_cal), value = TRUE)
 group_icd = c(group_icd, "C80")
-group_C1_embed = embed_long_df %>% filter(ICD1 %in% group_icd & ICD2 %in% group_icd)
+group_C1_embed = embed_long_df %>% filter(OPCS1 %in% group_icd & OPCS2 %in% group_icd)
 # Distribution
 summary(group_C1_embed$embed_dist)
 sd(group_C1_embed$embed_dist)
-to_plot_mean = group_C1_embed %>% select(ICD1, ICD2, embed_dist) %>% 
-  spread(ICD2, value = embed_dist) %>% column_to_rownames("ICD1") %>% as.matrix()
+to_plot_mean = group_C1_embed %>% select(OPCS1, OPCS2, embed_dist) %>% 
+  spread(OPCS2, value = embed_dist) %>% column_to_rownames("OPCS1") %>% as.matrix()
 pdf(file = paste0(output_path, 'Embedding.Sim/heatmap/C[67]_ICD2.pdf'), wi = 10, he = 10);
 corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(0, 1), type = "lower", 
          tl.pos = "l", tl.col = 'black', tl.srt = 0,
@@ -224,17 +228,17 @@ corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(0, 1), typ
 dev.off()
 
 # Naive
-group_C1_embed = dist_final %>% filter(ICD1 %in% group_icd & ICD2 %in% group_icd) %>% select(ICD1, ICD2, naive_dist) 
-group_C1_embed_add = group_C1_embed %>% dplyr::rename(ICD2 = ICD1, ICD1 = ICD2)
-all_codes = unique(union(unique(group_C1_embed$ICD1), unique(group_C1_embed$ICD2)))
+group_C1_embed = dist_final %>% filter(OPCS1 %in% group_icd & OPCS2 %in% group_icd) %>% select(OPCS1, OPCS2, naive_dist) 
+group_C1_embed_add = group_C1_embed %>% dplyr::rename(OPCS2 = OPCS1, OPCS1 = OPCS2)
+all_codes = unique(union(unique(group_C1_embed$OPCS1), unique(group_C1_embed$OPCS2)))
 group_C1_embed_add2 = cbind(all_codes, all_codes, rep(0, length(all_codes)))
-colnames(group_C1_embed_add2) = c("ICD1", "ICD2", "naive_dist")
+colnames(group_C1_embed_add2) = c("OPCS1", "OPCS2", "naive_dist")
 group_C1_embed_final = rbind(group_C1_embed, group_C1_embed_add, group_C1_embed_add2)
 # Distribution
 summary(group_C1_embed$naive_dist)
 sd(group_C1_embed$naive_dist)
 to_plot_mean = group_C1_embed_final %>% mutate(naive_dist = as.numeric(naive_dist)) %>% 
-  spread(ICD2, value = naive_dist) %>% column_to_rownames("ICD1") %>% as.matrix()
+  spread(OPCS2, value = naive_dist) %>% column_to_rownames("OPCS1") %>% as.matrix()
 pdf(file = paste0(output_path, 'Embedding.Sim/heatmap/C[67]_ICD_naive2.pdf'), wi = 10, he = 10);
 corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(0, 1), type = "upper", 
          tl.pos = "b", tl.col = 'grey50', tl.srt = 0,
@@ -312,8 +316,8 @@ load(file = paste0(raw_data_path, "compare_distance_df.rda"))
 ```{r}
 # Embedding vs. genetics 
 gen_embed = compare_distance_df %>% 
-  select(ICD1, ICD2, chap_clinic1, chap_clinic2, embed_dist, gen_dist, Study_type) %>% 
-  filter(ICD1 != ICD2) %>% filter(!is.na(embed_dist) & !is.na(gen_dist))
+  select(OPCS1, OPCS2, chap_clinic1, chap_clinic2, embed_dist, gen_dist, Study_type) %>% 
+  filter(OPCS1 != OPCS2) %>% filter(!is.na(embed_dist) & !is.na(gen_dist))
 gen_embed$chap_clinic1 = factor(gen_embed$chap_clinic1,
               levels = c("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
               "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
@@ -347,8 +351,8 @@ plot_embed_gene_bytype = ggplot(gen_embed, aes(x = gen_cor, y = embed_dist, colo
 ```{r}
 # Embedding vs. genetics 
 comorb_embed = compare_distance_df %>% 
-  select(ICD1, ICD2, chap_clinic1, chap_clinic2, embed_dist, jaccard_dist) %>% 
-  filter(ICD1 != ICD2) %>% filter(!is.na(embed_dist) & !is.na(jaccard_dist))
+  select(OPCS1, OPCS2, chap_clinic1, chap_clinic2, embed_dist, jaccard_dist) %>% 
+  filter(OPCS1 != OPCS2) %>% filter(!is.na(embed_dist) & !is.na(jaccard_dist))
 comorb_embed$chap_clinic1 = factor(comorb_embed$chap_clinic1,
               levels = c("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
               "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
@@ -399,8 +403,8 @@ interest_comorb = compare_distance_df %>%
 ```{r}
 # Tree vs. genetics 
 gen_tree = compare_distance_df %>% 
-  select(ICD1, ICD2, chap_clinic1, chap_clinic2, naive_dist, gen_dist, Study_type) %>% 
-  filter(ICD1 != ICD2) %>% filter(!is.na(naive_dist) & !is.na(gen_dist))
+  select(OPCS1, OPCS2, chap_clinic1, chap_clinic2, naive_dist, gen_dist, Study_type) %>% 
+  filter(OPCS1 != OPCS2) %>% filter(!is.na(naive_dist) & !is.na(gen_dist))
 # N = 1806 pairs
 gen_tree$chap_clinic1 = factor(gen_tree$chap_clinic1,
               levels = c("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
@@ -434,8 +438,8 @@ plot_tree_gene_bytype = ggplot(gen_tree, aes(x = naive_dist, y = gen_dist, color
 ```{r}
 # Embedding vs. genetics 
 comorb_tree = compare_distance_df %>% 
-  select(ICD1, ICD2, chap_clinic1, chap_clinic2, naive_dist, jaccard_dist) %>% 
-  filter(ICD1 != ICD2) %>% filter(!is.na(naive_dist) & !is.na(jaccard_dist))
+  select(OPCS1, OPCS2, chap_clinic1, chap_clinic2, naive_dist, jaccard_dist) %>% 
+  filter(OPCS1 != OPCS2) %>% filter(!is.na(naive_dist) & !is.na(jaccard_dist))
 comorb_tree$chap_clinic1 = factor(comorb_tree$chap_clinic1,
               levels = c("I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X",
               "XI", "XII", "XIII", "XIV", "XV", "XVI", "XVII", "XVIII", "XIX", "XX",
