@@ -14,18 +14,17 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 pacman::p_load(tidyverse, e1071, gtools)
 
-raw_data_path = "/Users/Mingzhou/Desktop/Projects/Disease.Similarity/GitHub/data/"
-output_path = "/Users/Mingzhou/Desktop/Projects/Disease.Similarity/GitHub/outputs/"
+raw_data_path = "/Users/oweyer/Documents/procedure_distance_KGE/data/"
+output_path = "/Users/oweyer/Documents/procedure_distance_KGE/outputs/"
 # Source in useful functions
-source("/Users/Mingzhou/Desktop/Projects/Disease.Similarity/GitHub/code/funcs_used.R")
+source("/Users/oweyer/Documents/procedure_distance_KGE/code/funcs_used.R")
 ```
 
 # Part 1. Clean distance metrics together
 ## 1. Join three metrics together and add clinical chapters
 ```{r}
 load(file = paste0(raw_data_path, 'Embed_Dist/mod/embed_long_df.rda'))
-load(file = paste0(raw_data_path, 'Genetic_Dist/mod/gen_corr_full.rda'))
-load(file = paste0(raw_data_path, 'Comorb_Dist/comorb_df_long.rda'))
+#load(file = paste0(raw_data_path, 'Comorb_Dist/comorb_df_long.rda'))
 
 joint_distance_full = embed_long_df %>% 
   full_join(gen_corr_full) %>% full_join(comorb_df_long) %>% 

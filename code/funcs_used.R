@@ -49,6 +49,7 @@ RVadjMaye <- function(X1, X2, center = TRUE){
   p <- dim(X1)[2]
   q <- dim(X2)[2]
   pq   <- p*q; pp <- p*p; qq <- q*q
+  
   AA   <- tcrossprod(X1)
   BB   <- tcrossprod(X2)
   sx1  <- std(X1); sx2 <- std(X2)
@@ -71,5 +72,6 @@ RVadjMaye <- function(X1, X2, center = TRUE){
       sqrt((pp-(n-1)/(n-2)*(pp-Trace(AA %*% AA) / (n-1)^2)) *
              (qq-(n-1)/(n-2)*(qq-trace(BB %*% BB) / (n-1)^2)))
   }
+  cat('.')
   RVadj
 }

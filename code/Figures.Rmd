@@ -14,10 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list = ls())
 pacman::p_load(tidyverse, ggridges, plyr, ggbreak, gridExtra, gtable, grid, corrplot, ComplexHeatmap, ggformula, circlize, ggpubr)
 
-raw_data_path = "/Users/Mingzhou/Desktop/Projects/Disease.Similarity/GitHub/data/"
-output_path = "/Users/Mingzhou/Desktop/Projects/Disease.Similarity/GitHub/outputs/"
+raw_data_path = "/Users/oweyer/Documents/procedure_distance_KGE/data/"
+output_path = "/Users/oweyer/Documents/procedure_distance_KGE/outputs/"
 # Source in useful functions
-source("/Users/Mingzhou/Desktop/Projects/Disease.Similarity/GitHub/code/funcs_used.R")
+source("/Users/oweyer/Documents/procedure_distance_KGE/code/funcs_used.R")
 
 load(file = paste0(raw_data_path, "dist_final_nodup.rda"))
 ```
