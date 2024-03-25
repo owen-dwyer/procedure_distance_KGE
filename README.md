@@ -1,6 +1,8 @@
 # Defining the distance between procedures using SNOMED CT embeddings
 
-A modification of https://github.com/TSChang-Lab/disease_distance_KGE. Can we reproduce this work for OPCS codes?
+A modification of https://github.com/TSChang-Lab/disease_distance_KGE. The idea is to see if this approach also works for OPCS procedure codes.
+
+----------- Anything below here is from the original ICD repo and may or may not work -----------
 
 
 ## Data description
