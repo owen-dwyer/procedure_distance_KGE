@@ -45,7 +45,7 @@ icd_3digit = unique_icd_lst[lapply(unique_icd_lst, nchar) == 3]
 load( file=paste0(output_path,'short_matrix_lst.rda') )
 load( file=paste0(output_path,'short_matrix_id_lst.rda') )
 
-n = 50
+n = 200
 short_matrix_lst <- short_matrix_lst[0:n]
 short_matrix_id_lst <- short_matrix_id_lst[0:n]
 

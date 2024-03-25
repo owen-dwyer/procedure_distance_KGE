@@ -85,31 +85,23 @@ g_set1$widths = unit.pmax(g1$widths, g2$widths)
 #dev.off()
 ```
 
-## Add: genetic by study type
-```{r}
-dist_gene_short = dist_final_nodup %>% select(OPCS1, OPCS2, gen_dist, Study_type) %>% drop_na()
-mu_gene = dist_gene_short %>% group_by(Study_type) %>% 
-  dplyr::summarise(mean_cor = mean(gen_dist, na.rm = T)) %>% pull(mean_cor)
-plot_gene_study = ggplot(dist_gene_short, aes(x = gen_dist, fill = Study_type)) + 
-  geom_histogram(bins = 50, alpha = 0.6, position = "identity") +
-  geom_vline(xintercept = mu_gene[1], linetype = "dashed") +
-  geom_vline(xintercept = mu_gene[2], linetype = "dashed") +
-  ggtitle("Genetic Correlation") + 
-  labs(y = "Count", x = "Value")
-```
-
 
 # Figure 3. Embedding heatmaps
 ```{r Load in embedding raw data}
-load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_sim_cal.rda"))
-load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_long_df.rda"))
-load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_long_df_addChap.rda"))
+#load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_sim_cal.rda"))
+#load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_long_df.rda"))
+#load(file = paste0(raw_data_path, "Embedding.Sim/final/embed_long_df_addChap.rda"))
+
+load(file = paste0(raw_data_path, "Embed_Dist/mod/embed_sim_opcs.rda"))
+load(file = paste0(raw_data_path, "Embed_Dist/mod/embed_long_df.rda"))
+load(file = paste0(raw_data_path, "Embed_Dist/mod/embed_long_df_addChap.rda"))
+
 ```
 
 ## 1) ICD-3 digit -- F3 group
 ```{r Within group check}
 # Here we take F3 as an example
-group_icd = grep("F3+", colnames(embed_sim_cal), value = TRUE)
+group_icd = grep("A0+", colnames(embed_sim), value = TRUE)
 group_F3_embed = embed_long_df %>% filter(OPCS1 %in% group_icd & OPCS2 %in% group_icd)
 # Distribution
 summary(group_F3_embed$embed_dist)
@@ -130,7 +122,7 @@ to_plot_mean[7,5] = NA
 to_plot_mean[7,6] = NA
 to_plot_mean[7,7] = NA
 pdf(file = paste0(output_path, 'Embedding.Sim/heatmap/F3_ICD.pdf'), wi = 5, he = 6);
-corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(0.33, 1), type = "lower", 
+corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(min(to_plot_mean, na.rm=TRUE), 1), type = "lower", 
          tl.pos = "ld", tl.col = 'grey30', tl.srt = 0,
          col = COL1('Blues'), cl.pos = 'r', addCoef.col = 'grey30')
 dev.off()
@@ -139,7 +131,7 @@ dev.off()
 ## 2) Group (Sub-chapter) -- F group
 ```{r Within sub-chapter check}
 # F chapter as an example
-group_icd = grep("F+", colnames(embed_sim_cal), value = TRUE)
+group_icd = grep("A+", colnames(embed_sim), value = TRUE)
 group_F_embed = embed_long_df %>% filter(OPCS1 %in% group_icd & OPCS2 %in% group_icd)
 # Distribution
 summary(group_F_embed$embed_dist)
@@ -153,7 +145,7 @@ group_F_summary = group_F_embed %>%
 to_plot_mean = group_F_summary %>% select(two_digit_1, two_digit_2, mean_dist) %>% 
   spread(two_digit_2, value = mean_dist) %>% column_to_rownames("two_digit_1") %>% as.matrix()
 pdf(file = paste0(output_path, 'Embedding.Sim/heatmap/F_group.pdf'), wi = 6, he = 7);
-corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(0.33, 1), type = "lower", 
+corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(min(to_plot_mean, na.rm=TRUE), 1), type = "lower", 
          tl.pos = "ld", tl.col = 'grey30', tl.srt = 0,
          col = COL1('Blues'), cl.pos = 'n', addCoef.col = 'white')
 dev.off()
@@ -169,7 +161,7 @@ chapter_summary = embed_long_df_addChap %>%
   group_by(chap_clinic1, chap_clinic2) %>% 
   dplyr::summarise(n_pairs = n(), mean_dist = mean(embed_dist, na.rm = T)) %>% ungroup()
 # Output to table
-write.table(chapter_summary, file = paste0(raw_data_path, "Embedding.Sim/final/chapter_summary.txt"), quote = F, col.names = T, sep = "\t", row.names = F)
+write.table(chapter_summary, file = paste0(raw_data_path, "chapter_summary.txt"), quote = F, col.names = T, sep = "\t", row.names = F)
 
 chapter_summary_stats = chapter_summary %>% as.data.frame() %>% 
   mutate(case_control = case_when(
@@ -181,7 +173,7 @@ chapter_summary_stats = chapter_summary %>% as.data.frame() %>%
 to_plot_mean = chapter_summary %>% select(chap_clinic1, chap_clinic2, mean_dist) %>% 
   spread(chap_clinic2, value = mean_dist) %>% column_to_rownames("chap_clinic1") %>% as.matrix()
 pdf(file = paste0(output_path, 'Embedding.Sim/heatmap/chapter-nonum2.pdf'), wi = 10, he = 12);
-corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(0.33, 1), type = "lower", 
+corrplot(to_plot_mean, is.corr = FALSE, method = 'color', col.lim = c(min(to_plot_mean, na.rm=TRUE), 1), type = "lower", 
          tl.pos = "l", tl.col = 'grey30', tl.srt = 0,
          col = COL1('Blues'), cl.pos = 'r')
 dev.off()

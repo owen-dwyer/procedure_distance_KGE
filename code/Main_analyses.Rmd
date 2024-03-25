@@ -103,6 +103,89 @@ joint_distance_full = embed_long_df %>%
                                paste0("O", 30:31),
                                paste0("O", 33:34),'O36','O43','O45') ~ "Z Subsidiary, sites",
   )) 
+
+
+
+
+embed_long_df_addChap = embed_long_df %>% 
+  #full_join(gen_corr_full) %>% full_join(comorb_df_long) %>% 
+  #dplyr::rename(jaccard_dist = comorb_dist) %>% 
+  #mutate(gen_dist = (-1)*gen_cor) %>% 
+  # Add clinical chapters
+  mutate(chap_clinic1 = case_when(
+    substr(OPCS1, 1, 1) == "A" ~ "A Nerv Sys",
+    substr(OPCS1, 1, 1) == "B" ~ "B Endocrine+Breast",
+    substr(OPCS1, 1, 1) == "C" ~ "C Eye",
+    substr(OPCS1, 1, 1) == "D" ~ "E Ear",
+    substr(OPCS1, 1, 1) == "E" ~ "E Respiratory",
+    substr(OPCS1, 1, 1) == "F" ~ "F Mouth",
+    substr(OPCS1, 1, 1) == "G" ~ "G U Dig've",
+    substr(OPCS1, 1, 1) == "H" ~ "H L Dig've",
+    substr(OPCS1, 1, 1) == "J" ~ "J Other Abdominal",
+    substr(OPCS1, 1, 1) == "K" ~ "K Heart",
+    substr(OPCS1, 1, 1) == "L" ~ "L Art + Vein",
+    substr(OPCS1, 1, 1) == "M" ~ "M Urinary",
+    substr(OPCS1, 1, 1) == "N" ~ "N M Genital",
+    substr(OPCS1, 1, 1) == "P" ~ "P Lwr F Genital",
+    substr(OPCS1, 1, 1) == "Q" ~ "Q Upr F Genital",
+    substr(OPCS1, 1, 1) == "R" ~ "R Preg + Birth",
+    substr(OPCS1, 1, 1) == "S" ~ "S Skin",
+    substr(OPCS1, 1, 1) == "T" ~ "T Soft tiss",
+    substr(OPCS1, 1, 1) == "U" ~ "U Img+Test+Rehab",
+    substr(OPCS1, 1, 1) == "V" ~ "V Bones of Skull+Spn",
+    substr(OPCS1, 1, 1) == "W" ~ "W Othr bones+joints",
+    substr(OPCS1, 1, 1) == "X" ~ "X Misc Oper'ns",
+    substr(OPCS1, 1, 1) == "Y" ~ "Y Subsidiary, methods",
+    substr(OPCS1, 1, 1) == "Z" ~ "Z Subsidiary, sites",
+    substr(OPCS1, 1, 2) %in% c(paste0("O","0", 1:5), 'O15','O20' ) ~ "L Art + Vein",
+    substr(OPCS1, 1, 2) %in% c( paste0("O","0", 6:9), 'O10', 
+                               paste0("O",17:19) , 
+                               paste0("O",21:27), 'O29','O32','O35',
+                               paste0("O",37:40)
+                               ) ~ "W Othr bones+joints",
+    substr(OPCS1, 1, 2) %in% c( 'O44' ) ~ "Y Subsidiary, methods",
+    substr(OPCS1, 1, 2) %in% c( paste0("O", 11:14),'O16','O28',
+                               paste0("O", 30:31),
+                               paste0("O", 33:34),'O36','O43','O45') ~ "Z Subsidiary, sites",
+  )) %>% 
+  mutate(chap_clinic2 = case_when(
+    substr(OPCS2, 1, 1) == "A" ~ "A Nerv Sys",
+    substr(OPCS2, 1, 1) == "B" ~ "B Endocrine+Breast",
+    substr(OPCS2, 1, 1) == "C" ~ "C Eye",
+    substr(OPCS2, 1, 1) == "D" ~ "E Ear",
+    substr(OPCS2, 1, 1) == "E" ~ "E Respiratory",
+    substr(OPCS2, 1, 1) == "F" ~ "F Mouth",
+    substr(OPCS2, 1, 1) == "G" ~ "G U Dig've",
+    substr(OPCS2, 1, 1) == "H" ~ "H L Dig've",
+    substr(OPCS2, 1, 1) == "J" ~ "J Other Abdominal",
+    substr(OPCS2, 1, 1) == "K" ~ "K Heart",
+    substr(OPCS2, 1, 1) == "L" ~ "L Art + Vein",
+    substr(OPCS2, 1, 1) == "M" ~ "M Urinary",
+    substr(OPCS2, 1, 1) == "N" ~ "N M Genital",
+    substr(OPCS2, 1, 1) == "P" ~ "P Lwr F Genital",
+    substr(OPCS2, 1, 1) == "Q" ~ "Q Upr F Genital",
+    substr(OPCS2, 1, 1) == "R" ~ "R Preg + Birth",
+    substr(OPCS2, 1, 1) == "S" ~ "S Skin",
+    substr(OPCS2, 1, 1) == "T" ~ "T Soft tiss",
+    substr(OPCS2, 1, 1) == "U" ~ "U Img+Test+Rehab",
+    substr(OPCS2, 1, 1) == "V" ~ "V Bones of Skull+Spn",
+    substr(OPCS2, 1, 1) == "W" ~ "W Othr bones+joints",
+    substr(OPCS2, 1, 1) == "X" ~ "X Misc Oper'ns",
+    substr(OPCS2, 1, 1) == "Y" ~ "Y Subsidiary, methods",
+    substr(OPCS2, 1, 1) == "Z" ~ "Z Subsidiary, sites",
+    substr(OPCS2, 1, 2) %in% c(paste0("O","0", 1:5), 'O15','O20' ) ~ "L Art + Vein",
+    substr(OPCS2, 1, 2) %in% c( paste0("O","0", 6:9), 'O10', 
+                               paste0("O",17:19) , 
+                               paste0("O",21:27), 'O29','O32','O35',
+                               paste0("O",37:40)
+                               ) ~ "W Othr bones+joints",
+    substr(OPCS2, 1, 2) %in% c( 'O44' ) ~ "Y Subsidiary, methods",
+    substr(OPCS2, 1, 2) %in% c( paste0("O", 11:14),'O16','O28',
+                               paste0("O", 30:31),
+                               paste0("O", 33:34),'O36','O43','O45') ~ "Z Subsidiary, sites",
+  )) 
+save(embed_long_df_addChap, file = paste0(raw_data_path, "Embed_Dist/mod/embed_long_df_addchap.rda"))
+
 ```
 
 ## 2. Add naive tree distance metric
